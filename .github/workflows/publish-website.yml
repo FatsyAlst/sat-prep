@@ -136,6 +136,8 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: site
+          # The default is one day, after which a failed deploy could no longer be re-run.
+          retention-days: 7
 
   deploy:
     if: github.ref == 'refs/heads/main'
