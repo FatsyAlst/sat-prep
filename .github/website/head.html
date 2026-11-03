@@ -20,3 +20,18 @@ if (!window.calloutTitleFold) {
 	});
 }
 </script>
+<script>
+/* The exporter's light/dark switch assumes a theme was saved before. On a first visit nothing is
+   saved, so with a light system theme the first click would do nothing. Save the theme in use
+   when the switch is first clicked so that click toggles as expected. */
+if (!window.themeToggleFirstClick) {
+	window.themeToggleFirstClick = true;
+	document.addEventListener("click", function (event) {
+		if (!event.target.closest || !event.target.closest(".theme-toggle-container")) return;
+		try {
+			if (localStorage.getItem("theme") === null)
+				localStorage.setItem("theme", document.body.classList.contains("theme-dark") ? "dark" : "light");
+		} catch (error) {}
+	}, true);
+}
+</script>
