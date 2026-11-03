@@ -8,8 +8,9 @@
 # Two small additions keep the result identical to what Obsidian shows (see .github/website/):
 #   export-vault.mjs   exports twice so the TikZ diagrams are drawn, and saves the math fonts
 #                      the exporter forgets to write,
-#   finish-site.py     restores the Homepage banner links and fails the build if the site is
-#                      incomplete (a note without a page, an undrawn diagram, a missing file).
+#   finish-site.py     restores the Homepage banner links and layout, adds the live charts and
+#                      fails the build if the site is incomplete (a note without a page, an
+#                      undrawn diagram, a missing file).
 #
 # One-time setup: Settings -> Pages -> Build and deployment -> Source: "GitHub Actions".
 
@@ -35,6 +36,7 @@ env:
   EXPORTER_REPO: https://github.com/KosmosisDire/obsidian-webpage-export.git
   EXPORTER_REF: 78c973ddc27eb09bf18e07d143889452bc71ffde # Webpage HTML Export 1.9.2
   OBSIDIAN_VERSION: 1.9.12
+  CHARTJS_VERSION: 3.9.1 # bundled in the Charts plugin 3.9.0
 
 jobs:
   build:
@@ -108,6 +110,14 @@ jobs:
             printf '<!doctype html><meta charset="utf-8"><title>SAT Math Prep</title><meta http-equiv="refresh" content="0; url=%s"><link rel="canonical" href="%s"><a href="%s">Open the vault</a>\n' "$home" "$home" "$home" > site/index.html
           fi
           touch site/.nojekyll
+
+      - name: Add Chart.js for the live charts
+        run: |
+          # The version the Charts plugin bundles, so charts look the same as in Obsidian.
+          npm pack "chart.js@$CHARTJS_VERSION" --silent
+          tar -xzf "chart.js-$CHARTJS_VERSION.tgz" package/dist/chart.min.js
+          mkdir -p site/site-lib/scripts
+          cp package/dist/chart.min.js site/site-lib/scripts/chart.min.js
 
       - name: Repair the site and check it against the vault
         run: |

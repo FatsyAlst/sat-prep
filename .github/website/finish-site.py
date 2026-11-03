@@ -8,6 +8,7 @@ Touches
     blob: URLs that mean nothing on the web. Point them at the real image files, using the
     note's own `banner:` and `icon-image:` properties, and restore the banner layout (text
     starting below the picture at the note's `content-start`, logo beside the title).
+  - Copy live-charts.js into the site so the charts recorded during the export are drawn live.
   - TikZ diagrams are drawn with Computer Modern fonts that the TikZJax plugin ships as a
     4.7 MB stylesheet. Instead of loading that on every page, save only the fonts the
     diagrams actually use (plus the plugin's small layout rule) and link that file from the
@@ -220,6 +221,25 @@ if tikz_pages and TIKZ_CSS.exists():
         )
     else:
         problems.append("TikZ blocks are on the site but none of them contains a drawing that uses a TikZ font")
+
+# ---------------------------------------------------------------- 2b. live charts
+# export-vault.mjs records each chart's Chart.js config on its block; live-charts.js (loaded by
+# head.html on every page) draws them in the browser with the Chart.js the workflow added.
+CHART_ATTR = re.compile(r'data-chart-config="([^"]*)"')
+chart_blocks = 0
+for page in pages:
+    for raw in CHART_ATTR.findall(read(page)):
+        chart_blocks += 1
+        try:
+            json.loads(html.unescape(raw))
+        except ValueError:
+            problems.append(f"{page.relative_to(site)}: a recorded chart config is not valid JSON")
+live_charts = site / "site-lib" / "scripts" / "live-charts.js"
+live_charts.parent.mkdir(parents=True, exist_ok=True)
+live_charts.write_text(read(Path(__file__).resolve().parent / "live-charts.js"), encoding="utf-8")
+if chart_blocks and not (site / "site-lib" / "scripts" / "chart.min.js").exists():
+    problems.append("charts are on the site but site-lib/scripts/chart.min.js is missing")
+print(f"charts: {chart_blocks} drawn live")
 
 # ---------------------------------------------------------------- 3. checks
 ASSET_TAG = re.compile(r"<(?:link|script|img|video|audio|source|iframe|embed)\b[^>]*>", re.I)

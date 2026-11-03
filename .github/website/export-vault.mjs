@@ -71,6 +71,39 @@ console.log('[export-vault] starting');
 			', drawings cached: ' + (await countTikzCache()));
 	}
 
+	// Every chart (```chart, ```advanced-chart and dataviewjs window.renderChart) goes through
+	// the Charts plugin's renderRaw. Keep each chart's Chart.js config on its block so the site
+	// can draw it live (hover, light/dark), and draw it here without animation so the picture
+	// the exporter takes as a fallback shows the final values, not a frame of the animation.
+	function recordCharts() {
+		const charts = this.app.plugins.plugins['obsidian-charts'];
+		if (!charts || !charts.renderer) {
+			console.log('[export-vault] Charts plugin not loaded, charts stay pictures');
+			return;
+		}
+		const original = charts.renderer.renderRaw.bind(charts.renderer);
+		const recorded = function (data, el) {
+			try {
+				const config = data && data.chartOptions ? data.chartOptions : data;
+				const style = getComputedStyle(el);
+				el.setAttribute('data-chart-config', JSON.stringify(config));
+				el.setAttribute('data-chart-theme', JSON.stringify({
+					border: style.getPropertyValue('--background-modifier-border').trim(),
+				}));
+				if (config && typeof config === 'object') {
+					config.options = config.options || {};
+					config.options.animation = false;
+				}
+			} catch (error) {
+				console.error('[export-vault] could not record a chart: ' + error);
+			}
+			return original(data, el);
+		};
+		charts.renderer.renderRaw = recorded;
+		window.renderChart = recorded;
+		console.log('[export-vault] recording chart configs');
+	}
+
 	async function writeMathJaxFonts() {
 		const fs = require('node:fs');
 		const path = require('node:path');
@@ -108,6 +141,7 @@ console.log('[export-vault] starting');
 	try {
 		console.log('[export-vault] enabling community plugins');
 		await this.app.plugins.setEnable(true);
+		recordCharts.call(this);
 
 		console.log('[export-vault] enabling Webpage HTML Export');
 		await this.app.plugins.enablePlugin('webpage-html-export');
