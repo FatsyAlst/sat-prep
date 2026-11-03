@@ -4,8 +4,9 @@
 // enable "Webpage HTML Export" and export every note to /output. Differences:
 //   - The vault is exported twice. TikZJax draws each diagram in the background (one TeX run
 //     per diagram) and remembers the result, but the exporter copies a page as soon as it has
-//     rendered, so after the first pass the diagrams are still loading spinners. By the second
+//     rendered, so after the first pass the diagrams are still loading spinners. In the second
 //     pass every diagram comes straight from TikZJax's cache and the pages are complete.
+//     (Only the second pass is kept; the output folder is emptied in between.)
 //   - The MathJax fonts are written to the site. The exporter points the formulas' CSS at
 //     site-lib/fonts/mathjax_*.woff but never saves those files, so without this step the
 //     formulas fall back to a plain serif font.
@@ -118,6 +119,13 @@ console.log('[export-vault] starting');
 
 		console.log('[export-vault] waiting for the diagrams');
 		await waitForTikz();
+
+		// The exporter keeps an index of what it already wrote and would skip every page it
+		// finds unchanged, so start the second pass from an empty folder.
+		const fs = require('node:fs');
+		for (const entry of fs.readdirSync('/output')) {
+			fs.rmSync('/output/' + entry, { recursive: true, force: true });
+		}
 
 		console.log('[export-vault] export pass 2 of 2: writes the final pages');
 		await plugin.exportDocker();
