@@ -5,9 +5,9 @@
 # callouts, LaTeX, Dataview queries and charts instead of a re-implementation of them.
 # Exporter: https://github.com/KosmosisDire/obsidian-webpage-export
 #
-# Three small additions keep the result identical to what Obsidian shows (see .github/website/):
-#   patch-exporter.py  makes the exporter wait until TikZ diagrams are drawn,
-#   export-vault.mjs   also saves the math fonts the exporter forgets to write,
+# Two small additions keep the result identical to what Obsidian shows (see .github/website/):
+#   export-vault.mjs   exports twice so the TikZ diagrams are drawn, and saves the math fonts
+#                      the exporter forgets to write,
 #   finish-site.py     restores the Homepage banner links and fails the build if the site is
 #                      incomplete (a note without a page, an undrawn diagram, a missing file).
 #
@@ -50,8 +50,6 @@ jobs:
         run: |
           git clone --filter=blob:none "$EXPORTER_REPO" exporter
           git -C exporter checkout "$EXPORTER_REF"
-          # Small fix so the exporter waits for TikZ diagrams to be drawn.
-          python3 vault/.github/website/patch-exporter.py exporter
           docker build --build-arg OBSIDIAN_VERSION="$OBSIDIAN_VERSION" -t vault-exporter exporter
 
       - name: Prepare the vault copy that gets exported
@@ -95,6 +93,8 @@ jobs:
             vault-exporter > logs/export.log 2>&1
           echo "docker exit code: $?" | tee -a logs/export.log
           set -e
+          # Docker wrote the files as root; the steps below need to modify them.
+          sudo chown -R "$(id -u):$(id -g)" site
           echo "---- last lines of the export log ----"
           tail -n 400 logs/export.log
           find site -type f -printf '%P\t%s\n' | sort > logs/site-files.tsv || true
