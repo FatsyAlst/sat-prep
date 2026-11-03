@@ -1,0 +1,104 @@
+# Builds the website version of this vault and publishes it on GitHub Pages.
+#
+# The site is rendered by Obsidian itself (running headless inside Docker) through the
+# "Webpage HTML Export" community plugin, so it uses the vault's own theme (Minimal),
+# callouts, LaTeX, Dataview queries and charts instead of a re-implementation of them.
+# Exporter: https://github.com/KosmosisDire/obsidian-webpage-export
+#
+# One-time setup: Settings -> Pages -> Build and deployment -> Source: "GitHub Actions".
+
+name: Publish vault website
+
+on:
+  push:
+    branches: [main, website-preview]
+    paths-ignore:
+      - "README.md"
+      - ".github/readme/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  # Pinned so every build renders the vault the same way.
+  EXPORTER_REPO: https://github.com/KosmosisDire/obsidian-webpage-export.git
+  EXPORTER_REF: 78c973ddc27eb09bf18e07d143889452bc71ffde # Webpage HTML Export 1.9.2
+  OBSIDIAN_VERSION: 1.9.12
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Check out the vault
+        uses: actions/checkout@v4
+        with:
+          path: vault
+
+      - name: Build the exporter image (Obsidian + Webpage HTML Export)
+        run: |
+          git clone --filter=blob:none "$EXPORTER_REPO" exporter
+          git -C exporter checkout "$EXPORTER_REF"
+          docker build --build-arg OBSIDIAN_VERSION="$OBSIDIAN_VERSION" -t vault-exporter exporter
+
+      - name: Install the export plugin and its settings into the vault copy
+        run: |
+          plugin_dir="vault/.obsidian/plugins/webpage-html-export"
+          mkdir -p "$plugin_dir"
+          id=$(docker create vault-exporter)
+          docker cp "$id":/plugin/. "$plugin_dir/"
+          docker rm "$id"
+          cp vault/.github/website/export-settings.json "$plugin_dir/data.json"
+
+      - name: Export the vault with Obsidian
+        run: |
+          mkdir -p site
+          timeout 25m docker run --rm \
+            -v "$PWD/vault":/vault \
+            -v "$PWD/site":/output \
+            vault-exporter 2>&1 | tail -n 400 || true
+          echo "Exported $(find site -name '*.html' | wc -l) HTML pages"
+          test -n "$(find site -name '*.html' -print -quit)"
+
+      - name: Make the Homepage note the landing page
+        run: |
+          if [ ! -f site/index.html ]; then
+            home=$(cd site && find . -maxdepth 1 -iname 'homepage.html' | head -n 1)
+            home=${home#./}
+            : "${home:=$(cd site && find . -name '*.html' | head -n 1 | sed 's|^\./||')}"
+            printf '<!doctype html><meta charset="utf-8"><title>SAT Math Prep</title><meta http-equiv="refresh" content="0; url=%s"><link rel="canonical" href="%s"><a href="%s">Open the vault</a>\n' "$home" "$home" "$home" > site/index.html
+          fi
+          touch site/.nojekyll
+
+      - name: Keep a downloadable copy of the site
+        uses: actions/upload-artifact@v4
+        with:
+          name: website
+          path: site
+          include-hidden-files: true
+          retention-days: 14
+
+      - name: Upload the Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

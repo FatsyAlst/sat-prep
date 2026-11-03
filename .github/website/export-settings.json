@@ -1,0 +1,19 @@
+{
+  "exportPreset": "online",
+  "logLevel": "warning",
+  "onlyExportModified": false,
+  "deleteOldFiles": false,
+  "openAfterExport": false,
+  "filePickerBlacklist": [
+    "(^|\\/)node_modules\\/",
+    "(^|\\/)dist\\/",
+    "(^|\\/)dist-ssr\\/",
+    "(^|\\/)\\.vscode\\/",
+    "^README\\.md$",
+    "^LICENSE"
+  ],
+  "exportOptions": {
+    "siteName": "SAT Math Prep",
+    "faviconPath": "media/sat-logo.png"
+  }
+}
