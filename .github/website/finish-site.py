@@ -6,7 +6,8 @@ Usage: finish-site.py <vault dir> <site dir>
 Touches
   - The Pixel Banner plugin draws the Homepage banner and logo from Obsidian-internal
     blob: URLs that mean nothing on the web. Point them at the real image files, using the
-    note's own `banner:` and `icon-image:` properties.
+    note's own `banner:` and `icon-image:` properties, and restore the banner layout (text
+    starting below the picture at the note's `content-start`, logo beside the title).
   - TikZ diagrams are drawn with Computer Modern fonts that the TikZJax plugin ships as a
     4.7 MB stylesheet. Instead of loading that on every page, save only the fonts the
     diagrams actually use (plus the plugin's small layout rule) and link that file from the
@@ -21,6 +22,7 @@ Check (the script exits with an error if any of these fail, so a broken site is 
     (which would break on a project site such as user.github.io/repo/).
 """
 import html
+import json
 import os
 import re
 import sys
@@ -96,6 +98,23 @@ def exported_file(value: str) -> str | None:
 
 
 # ---------------------------------------------------------------- 1. banner and logo
+PIXEL_BANNER_SETTINGS = vault / ".obsidian" / "plugins" / "pexels-banner" / "data.json"
+PIXEL_BANNER = json.loads(read(PIXEL_BANNER_SETTINGS)) if PIXEL_BANNER_SETTINGS.exists() else {}
+
+
+def add_style(text: str, tag_at: int, style: str) -> str:
+    """Add CSS declarations to the opening tag that starts at tag_at."""
+    end = text.index(">", tag_at)
+    tag = text[tag_at:end]
+    match = re.search(r'\sstyle="([^"]*)"', tag)
+    if match:
+        merged = match.group(1).rstrip("; ") + "; " + style
+        tag = tag[: match.start(1)] + merged + tag[match.end(1):]
+    else:
+        tag += f' style="{style}"'
+    return text[:tag_at] + tag + text[end:]
+
+
 BLOB = re.compile(r"blob:app://obsidian\.md/[0-9a-f-]+")
 BANNER_DIV = re.compile(r'<div class="pixel-banner-image"[^>]*>')
 ICON_IMG = re.compile(r'<img\b[^>]*\bclass="banner-icon-image[^"]*"[^>]*>')
@@ -127,6 +146,28 @@ for note in notes:
         text = ICON_IMG.sub(
             lambda m: BLOB.sub(icon_url, m.group(0)).replace(" is-unresolved", ""), text
         )
+
+    # Layout. In Obsidian, Pixel Banner sets its CSS variables on the note's view (so the logo
+    # sees them too), adds the gap around the banner and pushes the text down to the note's
+    # `content-start`. The export only keeps the variables on the banner itself, so the title
+    # and logo end up on top of the picture. Restore the same three things here.
+    banner = BANNER_DIV.search(text)
+    if banner:
+        doc_at = text.rfind('<div class="obsidian-document', 0, banner.start())
+        sizer_at = text.rfind('<div class="markdown-preview-sizer', 0, banner.start())
+        if doc_at < 0 or sizer_at < doc_at:
+            problems.append(f"{page.relative_to(site)}: could not place the banner layout")
+        else:
+            variables = dict(re.findall(r"(--pixel-banner-[\w-]+):\s*([^;\"]+)", banner.group(0)))
+            start = re.sub(r"[^0-9.]", "", props.get("content-start", "")) or str(
+                PIXEL_BANNER.get("contentStartPosition", 355)
+            )
+            variables["--pixel-banner-content-start"] = f"{start}px"
+            variables["--pixel-banner-banner-gap"] = f"{PIXEL_BANNER.get('bannerGap', 12)}px"
+            doc_style = "; ".join(f"{k}: {v.strip()}" for k, v in variables.items())
+            # the sizer first (it comes later in the text), then the document div
+            text = add_style(text, sizer_at, "padding-top: var(--pixel-banner-content-start)")
+            text = add_style(text, doc_at, doc_style)
     if text != original:
         page.write_text(text, encoding="utf-8")
         banner_pages += 1

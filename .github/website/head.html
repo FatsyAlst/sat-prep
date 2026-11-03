@@ -6,6 +6,11 @@
 .refresh-icon {
 	display: none !important;
 }
+/* The vault hides note properties in reading view (snippet hide-properties.css), so leave out
+   the tag row the exporter puts under each title. */
+.header .data-bar {
+	display: none !important;
+}
 </style>
 <script>
 /* In Obsidian a click anywhere on a callout's title folds or unfolds it. The exported page only
