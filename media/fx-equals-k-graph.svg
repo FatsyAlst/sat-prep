@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 310 270" width="310" height="270" style="background:#fff; font-family:Georgia,serif;">
+
+  <!-- Grid lines (light) -->
+  <!-- vertical at x=-2,-1,1,2,3 -->
+  <line x1="72"  y1="15" x2="72"  y2="255" stroke="#e8e8e8" stroke-width="1"/>
+  <line x1="109" y1="15" x2="109" y2="255" stroke="#e8e8e8" stroke-width="1"/>
+  <line x1="183" y1="15" x2="183" y2="255" stroke="#e8e8e8" stroke-width="1"/>
+  <line x1="220" y1="15" x2="220" y2="255" stroke="#e8e8e8" stroke-width="1"/>
+  <line x1="257" y1="15" x2="257" y2="255" stroke="#e8e8e8" stroke-width="1"/>
+  <!-- horizontal at y=-4,-2,2,4 -->
+  <line x1="35" y1="222" x2="275" y2="222" stroke="#e8e8e8" stroke-width="1"/>
+  <line x1="35" y1="179" x2="275" y2="179" stroke="#e8e8e8" stroke-width="1"/>
+  <line x1="35" y1="91"  x2="275" y2="91"  stroke="#e8e8e8" stroke-width="1"/>
+  <line x1="35" y1="48"  x2="275" y2="48"  stroke="#e8e8e8" stroke-width="1"/>
+
+  <!-- Axes -->
+  <line x1="35" y1="135" x2="275" y2="135" stroke="#333" stroke-width="1.5"/>
+  <line x1="146" y1="255" x2="146" y2="15"  stroke="#333" stroke-width="1.5"/>
+
+  <!-- Axis arrows -->
+  <polygon points="275,135 268,131 268,139" fill="#333"/>
+  <polygon points="146,15 142,22 150,22" fill="#333"/>
+
+  <!-- x-axis ticks and labels -->
+  <line x1="72"  y1="132" x2="72"  y2="138" stroke="#333" stroke-width="1.2"/>
+  <line x1="109" y1="132" x2="109" y2="138" stroke="#333" stroke-width="1.2"/>
+  <line x1="183" y1="132" x2="183" y2="138" stroke="#333" stroke-width="1.2"/>
+  <line x1="220" y1="132" x2="220" y2="138" stroke="#333" stroke-width="1.2"/>
+  <line x1="257" y1="132" x2="257" y2="138" stroke="#333" stroke-width="1.2"/>
+  <text x="70"  y="148" text-anchor="middle" font-size="11" fill="#555">-2</text>
+  <text x="107" y="148" text-anchor="middle" font-size="11" fill="#555">-1</text>
+  <text x="183" y="148" text-anchor="middle" font-size="11" fill="#555">1</text>
+  <text x="220" y="148" text-anchor="middle" font-size="11" fill="#555">2</text>
+  <text x="257" y="148" text-anchor="middle" font-size="11" fill="#555">3</text>
+
+  <!-- y-axis ticks and labels -->
+  <line x1="143" y1="222" x2="149" y2="222" stroke="#333" stroke-width="1.2"/>
+  <line x1="143" y1="179" x2="149" y2="179" stroke="#333" stroke-width="1.2"/>
+  <line x1="143" y1="91"  x2="149" y2="91"  stroke="#333" stroke-width="1.2"/>
+  <line x1="143" y1="48"  x2="149" y2="48"  stroke="#333" stroke-width="1.2"/>
+  <text x="135" y="226" text-anchor="end" font-size="11" fill="#555">-4</text>
+  <text x="135" y="183" text-anchor="end" font-size="11" fill="#555">-2</text>
+  <text x="135" y="95"  text-anchor="end" font-size="11" fill="#555">2</text>
+  <text x="135" y="52"  text-anchor="end" font-size="11" fill="#555">4</text>
+
+  <!-- Axis labels -->
+  <text x="278" y="139" font-size="13" fill="#333" font-style="italic">x</text>
+  <text x="150" y="12"  font-size="13" fill="#333" font-style="italic">y</text>
+
+  <!-- Cubic curve: f(x) = 0.5x³ - 0.5x² - x + 2.5 -->
+  <polyline
+    points="57,242 67,212 72,167 78,148 83,140 87,118 94,101 102,89 109,81 120,74 127,74 133,75 138,77 146,81 152,85 157,88 164,93 170,97 175,99 183,102 190,104 196,103 201,101 207,97 212,91 216,86 220,81 227,65 234,45 240,26"
+    fill="none" stroke="#222" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+
+  <!-- f(x) = k = 2 horizontal dashed line -->
+  <line x1="35" y1="91" x2="275" y2="91"
+        stroke="#e05a2b" stroke-width="1.8" stroke-dasharray="7,4"/>
+
+  <!-- Label for f(x)=2 line -->
+  <rect x="242" y="78" width="55" height="17" rx="3" fill="#fff9f6" stroke="#e05a2b" stroke-width="0.8"/>
+  <text x="269" y="91" text-anchor="middle" font-size="10.5" fill="#e05a2b" dominant-baseline="middle">f(x) = 2</text>
+
+  <!-- Intersection dots (3 solutions) -->
+  <circle cx="100" cy="91" r="4.5" fill="#e05a2b" stroke="#fff" stroke-width="1.5"/>
+  <circle cx="161" cy="91" r="4.5" fill="#e05a2b" stroke="#fff" stroke-width="1.5"/>
+  <circle cx="212" cy="91" r="4.5" fill="#e05a2b" stroke="#fff" stroke-width="1.5"/>
+
+  <!-- k=2 label on y-axis (already ticked, but highlight it) -->
+  <text x="133" y="95" text-anchor="end" font-size="11" fill="#e05a2b" font-weight="bold">k=2</text>
+
+</svg>

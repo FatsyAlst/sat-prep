@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="420" viewBox="0 0 520 420">
+  <!-- Background -->
+  <rect width="520" height="420" fill="#fff8f0" rx="8"/>
+
+  <!-- Grid -->
+  <defs>
+    <pattern id="smallgrid" width="12" height="12" patternUnits="userSpaceOnUse">
+      <path d="M 12 0 L 0 0 0 12" fill="none" stroke="#e0d0b0" stroke-width="0.4"/>
+    </pattern>
+  </defs>
+  <rect x="60" y="20" width="420" height="380" fill="url(#smallgrid)"/>
+
+  <!-- Axes -->
+  <line x1="60" y1="210" x2="480" y2="210" stroke="#888" stroke-width="1.5"/>
+  <line x1="240" y1="20" x2="240" y2="400" stroke="#888" stroke-width="1.5"/>
+
+  <!-- Axis labels -->
+  <text x="485" y="215" font-size="13" fill="#666" font-family="palatino, serif">x</text>
+  <text x="244" y="14" font-size="13" fill="#666" font-family="palatino, serif">y</text>
+
+  <!-- Tick numbers -->
+  <g font-size="10" fill="#999" font-family="palatino, serif" text-anchor="middle">
+    <text x="192" y="224">-4</text>
+    <text x="144" y="224">-8</text>
+    <text x="96" y="224">-12</text>
+    <text x="288" y="224">4</text>
+    <text x="336" y="224">8</text>
+    <text x="384" y="224">12</text>
+    <text x="432" y="224">16</text>
+  </g>
+  <g font-size="10" fill="#999" font-family="palatino, serif" text-anchor="end">
+    <text x="234" y="162">4</text>
+    <text x="234" y="114">8</text>
+    <text x="234" y="66">12</text>
+    <text x="234" y="258">-4</text>
+    <text x="234" y="306">-8</text>
+  </g>
+
+  <!-- Graphed line: y = g(x)+10 = -x/3 + 4 (blue, solid) -->
+  <line x1="60" y1="154" x2="480" y2="250" stroke="#2980b9" stroke-width="2.5"/>
+  <text x="68" y="144" font-size="12" fill="#2980b9" font-family="palatino, serif" font-style="italic">y = g(x) + 10  (what the graph shows)</text>
+
+  <!-- y-intercept of graphed line at (0,4): x_px=240, y_px=162 -->
+  <circle cx="240" cy="162" r="5" fill="#e67e22" stroke="white" stroke-width="1.5"/>
+  <text x="250" y="158" font-size="11" fill="#e67e22" font-family="palatino, serif" font-weight="bold">y-intercept = 4  ← trap: don't use this for g(x)</text>
+
+  <!-- Actual g(x): y = -x/3 - 6 (red, dashed) -->
+  <line x1="60" y1="202" x2="480" y2="362" stroke="#c0392b" stroke-width="2.5" stroke-dasharray="7,4"/>
+  <text x="68" y="375" font-size="12" fill="#c0392b" font-family="palatino, serif" font-style="italic">g(x) = −x/3 − 6  (correct answer)</text>
+
+  <!-- g(x) y-intercept at (0,-6): y_px=282 -->
+  <circle cx="240" cy="282" r="5" fill="#c0392b" stroke="white" stroke-width="1.5"/>
+  <text x="250" y="287" font-size="11" fill="#c0392b" font-family="palatino, serif" font-weight="bold">y-intercept of g(x) = −6  ← subtract 10</text>
+
+  <!-- Arrow showing the -10 shift -->
+  <line x1="238" y1="168" x2="238" y2="276" stroke="#27ae60" stroke-width="1.8" stroke-dasharray="3,3"/>
+  <polygon points="233,276 238,286 243,276" fill="#27ae60"/>
+  <text x="244" y="230" font-size="12" fill="#27ae60" font-family="palatino, serif" font-weight="bold">− 10</text>
+
+  <!-- Caption -->
+  <text x="260" y="412" font-size="10" fill="#999" font-family="palatino, serif" text-anchor="middle">The graph of y = g(x)+10 is shifted up 10 from g(x) — always subtract 10 to recover g(x)</text>
+</svg>

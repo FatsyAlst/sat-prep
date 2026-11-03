@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 220" width="280" height="220" style="background:#fff; font-family:Georgia,serif;">
+
+  <!-- Axes -->
+  <line x1="30" y1="110" x2="260" y2="110" stroke="#333" stroke-width="1.5"/>
+  <line x1="60" y1="210" x2="60"  y2="20"  stroke="#333" stroke-width="1.5"/>
+  <polygon points="260,110 253,106 253,114" fill="#333"/>
+  <polygon points="60,20 56,27 64,27" fill="#333"/>
+  <text x="263" y="114" font-size="13" fill="#333" font-style="italic">x</text>
+  <text x="64"  y="17"  font-size="13" fill="#333" font-style="italic">y</text>
+  <text x="52"  y="124" font-size="11" fill="#777">O</text>
+
+  <!-- Downward parabola: vertex at (4,2) → screen (190, 70), opens down -->
+  <!-- Using y = -a(x-4)²+2; pick a=0.18 for nice shape -->
+  <!-- screen: sx = 60 + x*32.5, sy = 110 - y*40 -->
+  <!-- vertex screen: sx=60+4*32.5=190, sy=110-2*40=30 ✓ -->
+  <path d="M 50,180 Q 190,30 255,130" fill="none" stroke="#4a6fa5" stroke-width="2.2" stroke-linecap="round"/>
+
+  <!-- x-axis intercepts (approximate, shown as dots) -->
+  <circle cx="97"  cy="110" r="4" fill="#4a6fa5"/>
+  <circle cx="245" cy="110" r="4" fill="#4a6fa5"/>
+
+  <!-- Vertex dot -->
+  <circle cx="190" cy="30" r="4.5" fill="#e05a2b"/>
+  <text x="196" y="27" font-size="11" fill="#e05a2b" font-style="italic">(4, 2)</text>
+
+  <!-- y-intercept dot (x=0 → sx=60) -->
+  <!-- y = -a(0-4)²+2 = 2 - 16a; with a≈0.18 → y ≈ 2-2.88 = -0.88 → sy=110+0.88*40=145 -->
+  <circle cx="60" cy="145" r="4" fill="#3a9e6e"/>
+  <text x="65" y="155" font-size="11" fill="#3a9e6e" font-style="italic">c = f(0)</text>
+
+  <!-- Dashed vertical from vertex to x-axis (axis of symmetry) -->
+  <line x1="190" y1="30" x2="190" y2="110" stroke="#e05a2b" stroke-width="1" stroke-dasharray="5,3"/>
+
+  <!-- axis of symmetry label -->
+  <text x="192" y="75" font-size="10" fill="#e05a2b">x = 4</text>
+
+  <!-- Labels on x-axis -->
+  <line x1="190" y1="107" x2="190" y2="113" stroke="#333" stroke-width="1.2"/>
+  <text x="190" y="124" text-anchor="middle" font-size="11" fill="#555">4</text>
+
+</svg>

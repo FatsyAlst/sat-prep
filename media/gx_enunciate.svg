@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="420" viewBox="0 0 480 420">
+  <!-- Background -->
+  <rect width="480" height="420" fill="#ffffff" rx="4"/>
+
+  <!-- Grid lines minor (every 1 unit = 9px, origin at 240,210) -->
+  <defs>
+    <pattern id="mingrid" width="9" height="9" patternUnits="userSpaceOnUse">
+      <path d="M 9 0 L 0 0 0 9" fill="none" stroke="#ddd" stroke-width="0.4"/>
+    </pattern>
+    <pattern id="majgrid" width="36" height="36" patternUnits="userSpaceOnUse">
+      <path d="M 36 0 L 0 0 0 36" fill="none" stroke="#bbb" stroke-width="0.8"/>
+    </pattern>
+  </defs>
+  <rect x="30" y="10" width="420" height="400" fill="url(#mingrid)"/>
+  <rect x="30" y="10" width="420" height="400" fill="url(#majgrid)"/>
+
+  <!-- Axes — origin at (240, 210) -->
+  <line x1="30" y1="210" x2="455" y2="210" stroke="#333" stroke-width="2"/>
+  <polygon points="455,206 464,210 455,214" fill="#333"/>
+  <line x1="240" y1="410" x2="240" y2="10" stroke="#333" stroke-width="2"/>
+  <polygon points="236,16 240,7 244,16" fill="#333"/>
+
+  <!-- Axis labels -->
+  <text x="468" y="215" font-size="14" fill="#333" font-family="serif" font-style="italic">x</text>
+  <text x="245" y="9" font-size="14" fill="#333" font-family="serif" font-style="italic">y</text>
+
+  <!-- x-axis tick labels (every 4 units) -->
+  <g font-size="10" fill="#666" font-family="serif" text-anchor="middle">
+    <text x="204" y="224">-4</text>
+    <text x="168" y="224">-8</text>
+    <text x="132" y="224">-12</text>
+    <text x="96"  y="224">-16</text>
+    <text x="60"  y="224">-20</text>
+    <text x="276" y="224">4</text>
+    <text x="312" y="224">8</text>
+    <text x="348" y="224">12</text>
+    <text x="384" y="224">16</text>
+    <text x="420" y="224">20</text>
+  </g>
+
+  <!-- y-axis tick labels (every 4 units) -->
+  <g font-size="10" fill="#666" font-family="serif" text-anchor="end">
+    <text x="233" y="174">4</text>
+    <text x="233" y="138">8</text>
+    <text x="233" y="102">12</text>
+    <text x="233" y="66">16</text>
+    <text x="233" y="30">20</text>
+    <text x="233" y="246">-4</text>
+    <text x="233" y="282">-8</text>
+    <text x="233" y="318">-12</text>
+    <text x="233" y="354">-16</text>
+    <text x="233" y="390">-20</text>
+  </g>
+
+  <!-- Origin label -->
+  <text x="228" y="224" font-size="10" fill="#666" font-family="serif">O</text>
+
+  <!-- The graphed line: y = g(x)+10 = -x/3 + 4 -->
+  <!-- At x=-20 (px=60):  y = 4+20/3 ≈ 10.67 → y_px = 210 - 9*10.67 = 210-96 = 114 -->
+  <!-- At x=22 (px=438):  y = 4-22/3 ≈ -3.33 → y_px = 210 + 9*3.33 = 210+30 = 240 -->
+  <line x1="50" y1="108" x2="448" y2="246" stroke="#111" stroke-width="2.5"/>
+</svg>

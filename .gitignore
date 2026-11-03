@@ -1,0 +1,12 @@
+# Obsidian per-device UI state
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.trash/
+
+# Kept private: the College Board PDF carries personal identifiers
+Scores/Official SAT Score Report*.pdf
+
+# Not part of the vault
+*.exe
+.DS_Store
+Thumbs.db
