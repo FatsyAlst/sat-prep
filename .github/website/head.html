@@ -1,0 +1,37 @@
+<style>
+/* Pixel Banner's banner-picker flag and image-viewer buttons only work inside Obsidian. */
+.select-image-icon,
+.view-image-icon,
+.pin-icon,
+.refresh-icon {
+	display: none !important;
+}
+</style>
+<script>
+/* In Obsidian a click anywhere on a callout's title folds or unfolds it. The exported page only
+   reacts to the small arrow, so pass clicks on the rest of the title on to the arrow. */
+if (!window.calloutTitleFold) {
+	window.calloutTitleFold = true;
+	document.addEventListener("click", function (event) {
+		var title = event.target.closest && event.target.closest(".callout-title");
+		if (!title || event.target.closest(".callout-fold, a")) return;
+		var arrow = title.querySelector(".callout-fold");
+		if (arrow) arrow.click();
+	});
+}
+</script>
+<script>
+/* The exporter's light/dark switch assumes a theme was saved before. On a first visit nothing is
+   saved, so with a light system theme the first click would do nothing. Save the theme in use
+   when the switch is first clicked so that click toggles as expected. */
+if (!window.themeToggleFirstClick) {
+	window.themeToggleFirstClick = true;
+	document.addEventListener("click", function (event) {
+		if (!event.target.closest || !event.target.closest(".theme-toggle-container")) return;
+		try {
+			if (localStorage.getItem("theme") === null)
+				localStorage.setItem("theme", document.body.classList.contains("theme-dark") ? "dark" : "light");
+		} catch (error) {}
+	}, true);
+}
+</script>

@@ -1,0 +1,25 @@
+{
+  "exportPreset": "online",
+  "logLevel": "all",
+  "onlyExportModified": false,
+  "deleteOldFiles": false,
+  "openAfterExport": false,
+  "filePickerBlacklist": [
+    "(^|\\/)node_modules\\/",
+    "(^|\\/)dist\\/",
+    "(^|\\/)dist-ssr\\/",
+    "(^|\\/)\\.vscode\\/"
+  ],
+  "exportOptions": {
+    "siteName": "SAT Math Prep",
+    "faviconPath": "media/sat-logo.png",
+    "includePluginCss": [
+      "dataview",
+      "obsidian-charts",
+      "pexels-banner"
+    ],
+    "customHeadOptions": {
+      "sourcePath": ".github/website/head.html"
+    }
+  }
+}

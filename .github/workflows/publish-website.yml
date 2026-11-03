@@ -1,0 +1,153 @@
+# Builds the website version of this vault and publishes it on GitHub Pages.
+#
+# The site is rendered by Obsidian itself (running headless inside Docker) through the
+# "Webpage HTML Export" community plugin, so it uses the vault's own theme (Minimal),
+# callouts, LaTeX, Dataview queries and charts instead of a re-implementation of them.
+# Exporter: https://github.com/KosmosisDire/obsidian-webpage-export
+#
+# Two small additions keep the result identical to what Obsidian shows (see .github/website/):
+#   export-vault.mjs   exports twice so the TikZ diagrams are drawn, and saves the math fonts
+#                      the exporter forgets to write,
+#   finish-site.py     restores the Homepage banner links and fails the build if the site is
+#                      incomplete (a note without a page, an undrawn diagram, a missing file).
+#
+# One-time setup: Settings -> Pages -> Build and deployment -> Source: "GitHub Actions".
+
+name: Publish vault website
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "README.md"
+      - ".github/readme/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  # Pinned so every build renders the vault the same way.
+  EXPORTER_REPO: https://github.com/KosmosisDire/obsidian-webpage-export.git
+  EXPORTER_REF: 78c973ddc27eb09bf18e07d143889452bc71ffde # Webpage HTML Export 1.9.2
+  OBSIDIAN_VERSION: 1.9.12
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Check out the vault
+        uses: actions/checkout@v4
+        with:
+          path: vault
+
+      - name: Build the exporter image (Obsidian + Webpage HTML Export)
+        run: |
+          git clone --filter=blob:none "$EXPORTER_REPO" exporter
+          git -C exporter checkout "$EXPORTER_REF"
+          docker build --build-arg OBSIDIAN_VERSION="$OBSIDIAN_VERSION" -t vault-exporter exporter
+
+      - name: Prepare the vault copy that gets exported
+        run: |
+          # Files that only exist for the GitHub repository, not for the vault itself.
+          rm -f vault/README.md vault/LICENSE vault/LICENSE.md
+
+          # Install the export plugin and its settings next to the vault's own plugins.
+          plugin_dir="vault/.obsidian/plugins/webpage-html-export"
+          mkdir -p "$plugin_dir"
+          id=$(docker create vault-exporter)
+          docker cp "$id":/plugin/. "$plugin_dir/"
+          docker rm "$id"
+
+          # The exporter's headless mode needs an explicit list of what to export (it fails
+          # on an empty list), so list every top-level note and folder of the vault.
+          python3 - <<'PY'
+          import json, os
+          vault = "vault"
+          settings = json.load(open(f"{vault}/.github/website/export-settings.json"))
+          entries = sorted(e for e in os.listdir(vault) if not e.startswith("."))
+          settings.setdefault("exportOptions", {})["filesToExport"] = entries
+          with open(f"{vault}/.obsidian/plugins/webpage-html-export/data.json", "w") as out:
+              json.dump(settings, out, indent=2)
+          print("Exporting these top-level entries:")
+          for entry in entries:
+              print("  -", entry)
+          PY
+
+          echo "Plugin files:"; ls -la "$plugin_dir"
+          echo "Notes in the vault: $(find vault -name '*.md' -not -path 'vault/.*' | wc -l)"
+
+      - name: Export the vault with Obsidian
+        run: |
+          mkdir -p site logs
+          set +e
+          timeout 25m docker run --rm --shm-size=2g \
+            -v "$PWD/vault":/vault \
+            -v "$PWD/site":/output \
+            -v "$PWD/vault/.github/website/export-vault.mjs":/export-vault.mjs:ro \
+            vault-exporter > logs/export.log 2>&1
+          echo "docker exit code: $?" | tee -a logs/export.log
+          set -e
+          # Docker wrote the files as root; the steps below need to modify them.
+          sudo chown -R "$(id -u):$(id -g)" site
+          echo "---- last lines of the export log ----"
+          tail -n 400 logs/export.log
+          find site -type f -printf '%P\t%s\n' | sort > logs/site-files.tsv || true
+
+      - name: Make the Homepage note the landing page
+        run: |
+          if [ ! -f site/index.html ]; then
+            home=$(cd site && find . -maxdepth 1 -iname 'homepage.html' | head -n 1)
+            home=${home#./}
+            : "${home:=$(cd site && find . -name '*.html' | head -n 1 | sed 's|^\./||')}"
+            printf '<!doctype html><meta charset="utf-8"><title>SAT Math Prep</title><meta http-equiv="refresh" content="0; url=%s"><link rel="canonical" href="%s"><a href="%s">Open the vault</a>\n' "$home" "$home" "$home" > site/index.html
+          fi
+          touch site/.nojekyll
+
+      - name: Repair the site and check it against the vault
+        run: |
+          python3 vault/.github/website/finish-site.py vault site 2>&1 | tee logs/finish-site.log
+          test "${PIPESTATUS[0]}" -eq 0
+          echo "site size: $(du -sh site | cut -f1)"
+
+      - name: Keep the export log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: export-log
+          path: logs
+          retention-days: 14
+
+      - name: Keep a downloadable copy of the site
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: website
+          path: site
+          include-hidden-files: true
+          retention-days: 14
+
+      - name: Upload the Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
