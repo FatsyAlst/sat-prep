@@ -57,7 +57,21 @@ jobs:
           id=$(docker create vault-exporter)
           docker cp "$id":/plugin/. "$plugin_dir/"
           docker rm "$id"
-          cp vault/.github/website/export-settings.json "$plugin_dir/data.json"
+
+          # The exporter's headless mode needs an explicit list of what to export (it fails
+          # on an empty list), so list every top-level note and folder of the vault.
+          python3 - <<'PY'
+          import json, os
+          vault = "vault"
+          settings = json.load(open(f"{vault}/.github/website/export-settings.json"))
+          entries = sorted(e for e in os.listdir(vault) if not e.startswith("."))
+          settings.setdefault("exportOptions", {})["filesToExport"] = entries
+          with open(f"{vault}/.obsidian/plugins/webpage-html-export/data.json", "w") as out:
+              json.dump(settings, out, indent=2)
+          print("Exporting these top-level entries:")
+          for entry in entries:
+              print("  -", entry)
+          PY
 
           echo "Plugin files:"; ls -la "$plugin_dir"
           echo "Notes in the vault: $(find vault -name '*.md' -not -path 'vault/.*' | wc -l)"
@@ -69,6 +83,7 @@ jobs:
           timeout 25m docker run --rm --shm-size=2g \
             -v "$PWD/vault":/vault \
             -v "$PWD/site":/output \
+            -v "$PWD/vault/.github/website/export-vault.mjs":/export-vault.mjs:ro \
             vault-exporter > logs/export.log 2>&1
           echo "docker exit code: $?" | tee -a logs/export.log
           set -e
