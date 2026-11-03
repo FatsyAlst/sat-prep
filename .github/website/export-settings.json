@@ -15,7 +15,11 @@
     "faviconPath": "media/sat-logo.png",
     "includePluginCss": [
       "dataview",
-      "obsidian-charts"
-    ]
+      "obsidian-charts",
+      "pexels-banner"
+    ],
+    "customHeadOptions": {
+      "sourcePath": ".github/website/head.html"
+    }
   }
 }

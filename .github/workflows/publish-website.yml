@@ -5,6 +5,12 @@
 # callouts, LaTeX, Dataview queries and charts instead of a re-implementation of them.
 # Exporter: https://github.com/KosmosisDire/obsidian-webpage-export
 #
+# Three small additions keep the result identical to what Obsidian shows (see .github/website/):
+#   patch-exporter.py  makes the exporter wait until TikZ diagrams are drawn,
+#   export-vault.mjs   also saves the math fonts the exporter forgets to write,
+#   finish-site.py     restores the Homepage banner links and fails the build if the site is
+#                      incomplete (a note without a page, an undrawn diagram, a missing file).
+#
 # One-time setup: Settings -> Pages -> Build and deployment -> Source: "GitHub Actions".
 
 name: Publish vault website
@@ -44,6 +50,8 @@ jobs:
         run: |
           git clone --filter=blob:none "$EXPORTER_REPO" exporter
           git -C exporter checkout "$EXPORTER_REF"
+          # Small fix so the exporter waits for TikZ diagrams to be drawn.
+          python3 vault/.github/website/patch-exporter.py exporter
           docker build --build-arg OBSIDIAN_VERSION="$OBSIDIAN_VERSION" -t vault-exporter exporter
 
       - name: Prepare the vault copy that gets exported
@@ -101,6 +109,12 @@ jobs:
           fi
           touch site/.nojekyll
 
+      - name: Repair the site and check it against the vault
+        run: |
+          python3 vault/.github/website/finish-site.py vault site 2>&1 | tee logs/finish-site.log
+          test "${PIPESTATUS[0]}" -eq 0
+          echo "site size: $(du -sh site | cut -f1)"
+
       - name: Keep the export log
         if: always()
         uses: actions/upload-artifact@v4
@@ -117,15 +131,6 @@ jobs:
           path: site
           include-hidden-files: true
           retention-days: 14
-
-      - name: Check that every note became a page
-        run: |
-          notes=$(find vault -name '*.md' -not -path 'vault/.*' | wc -l)
-          pages=$(find site -name '*.html' | wc -l)
-          echo "notes in the vault: $notes"
-          echo "html pages exported: $pages"
-          du -sh site
-          test "$pages" -ge "$notes"
 
       - name: Upload the Pages artifact
         uses: actions/upload-pages-artifact@v3
