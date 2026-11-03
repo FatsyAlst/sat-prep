@@ -46,8 +46,12 @@ jobs:
           git -C exporter checkout "$EXPORTER_REF"
           docker build --build-arg OBSIDIAN_VERSION="$OBSIDIAN_VERSION" -t vault-exporter exporter
 
-      - name: Install the export plugin and its settings into the vault copy
+      - name: Prepare the vault copy that gets exported
         run: |
+          # Files that only exist for the GitHub repository, not for the vault itself.
+          rm -f vault/README.md vault/LICENSE vault/LICENSE.md
+
+          # Install the export plugin and its settings next to the vault's own plugins.
           plugin_dir="vault/.obsidian/plugins/webpage-html-export"
           mkdir -p "$plugin_dir"
           id=$(docker create vault-exporter)
@@ -55,15 +59,22 @@ jobs:
           docker rm "$id"
           cp vault/.github/website/export-settings.json "$plugin_dir/data.json"
 
+          echo "Plugin files:"; ls -la "$plugin_dir"
+          echo "Notes in the vault: $(find vault -name '*.md' -not -path 'vault/.*' | wc -l)"
+
       - name: Export the vault with Obsidian
         run: |
-          mkdir -p site
+          mkdir -p site logs
+          set +e
           timeout 25m docker run --rm \
             -v "$PWD/vault":/vault \
             -v "$PWD/site":/output \
-            vault-exporter 2>&1 | tail -n 400 || true
-          echo "Exported $(find site -name '*.html' | wc -l) HTML pages"
-          test -n "$(find site -name '*.html' -print -quit)"
+            vault-exporter > logs/export.log 2>&1
+          echo "docker exit code: $?" | tee -a logs/export.log
+          set -e
+          echo "---- last lines of the export log ----"
+          tail -n 400 logs/export.log
+          find site -type f -printf '%P\t%s\n' | sort > logs/site-files.tsv || true
 
       - name: Make the Homepage note the landing page
         run: |
@@ -75,13 +86,31 @@ jobs:
           fi
           touch site/.nojekyll
 
+      - name: Keep the export log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: export-log
+          path: logs
+          retention-days: 14
+
       - name: Keep a downloadable copy of the site
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: website
           path: site
           include-hidden-files: true
           retention-days: 14
+
+      - name: Check that every note became a page
+        run: |
+          notes=$(find vault -name '*.md' -not -path 'vault/.*' | wc -l)
+          pages=$(find site -name '*.html' | wc -l)
+          echo "notes in the vault: $notes"
+          echo "html pages exported: $pages"
+          du -sh site
+          test "$pages" -ge "$notes"
 
       - name: Upload the Pages artifact
         uses: actions/upload-pages-artifact@v3

@@ -1,6 +1,6 @@
 {
   "exportPreset": "online",
-  "logLevel": "warning",
+  "logLevel": "all",
   "onlyExportModified": false,
   "deleteOldFiles": false,
   "openAfterExport": false,
@@ -8,12 +8,15 @@
     "(^|\\/)node_modules\\/",
     "(^|\\/)dist\\/",
     "(^|\\/)dist-ssr\\/",
-    "(^|\\/)\\.vscode\\/",
-    "^README\\.md$",
-    "^LICENSE"
+    "(^|\\/)\\.vscode\\/"
   ],
   "exportOptions": {
     "siteName": "SAT Math Prep",
-    "faviconPath": "media/sat-logo.png"
+    "faviconPath": "media/sat-logo.png",
+    "includePluginCss": [
+      "dataview",
+      "obsidian-charts",
+      "obsidian-tikzjax"
+    ]
   }
 }
