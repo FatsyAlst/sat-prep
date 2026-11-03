@@ -15,8 +15,7 @@
     "faviconPath": "media/sat-logo.png",
     "includePluginCss": [
       "dataview",
-      "obsidian-charts",
-      "obsidian-tikzjax"
+      "obsidian-charts"
     ]
   }
 }

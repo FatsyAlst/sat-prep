@@ -66,7 +66,7 @@ jobs:
         run: |
           mkdir -p site logs
           set +e
-          timeout 25m docker run --rm \
+          timeout 25m docker run --rm --shm-size=2g \
             -v "$PWD/vault":/vault \
             -v "$PWD/site":/output \
             vault-exporter > logs/export.log 2>&1
