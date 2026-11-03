@@ -7,3 +7,16 @@
 	display: none !important;
 }
 </style>
+<script>
+/* In Obsidian a click anywhere on a callout's title folds or unfolds it. The exported page only
+   reacts to the small arrow, so pass clicks on the rest of the title on to the arrow. */
+if (!window.calloutTitleFold) {
+	window.calloutTitleFold = true;
+	document.addEventListener("click", function (event) {
+		var title = event.target.closest && event.target.closest(".callout-title");
+		if (!title || event.target.closest(".callout-fold, a")) return;
+		var arrow = title.querySelector(".callout-fold");
+		if (arrow) arrow.click();
+	});
+}
+</script>
