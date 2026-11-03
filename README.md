@@ -7,9 +7,9 @@
 
 This is the Obsidian vault I used to prepare for the SAT Math section between February 8 and March 14, 2026. It holds the day-by-day study plan, every practice test, my topic notes and the 85 questions I reviewed along the way.
 
-The repository *is* the vault. Clone it and open the folder in Obsidian to see it the way I used it, with the same theme, plugins and dashboard ([how](#open-it-in-obsidian)).
+The repository *is* the vault. Clone it and open the folder in Obsidian to see it the way I used it, with the same theme, plugins and dashboard ([how](#open-it-in-obsidian)). To just read it, there's a [website version](https://fatsyalst.github.io/sat-prep/) too ([how it's made](#read-it-as-a-website)).
 
-**Contents:** [Why the SAT](#why-the-sat) · [How the plan was made](#how-the-plan-was-made) · [How a day worked](#how-a-day-worked) · [The evolution](#the-evolution) · [Test day](#test-day) · [What's inside](#whats-inside) · [Open it in Obsidian](#open-it-in-obsidian)
+**Contents:** [Why the SAT](#why-the-sat) · [How the plan was made](#how-the-plan-was-made) · [How a day worked](#how-a-day-worked) · [The evolution](#the-evolution) · [Test day](#test-day) · [What's inside](#whats-inside) · [Open it in Obsidian](#open-it-in-obsidian) · [Read it as a website](#read-it-as-a-website)
 
 ---
 
@@ -153,6 +153,7 @@ Full result: [`Scores/Official SAT — March 2026`](Scores/Official%20SAT%20%E2%
 | [`Extra exercises/`](Extra%20exercises) | 60 medium questions exported from the SAT Suite Question Bank. |
 | `media/` | Screenshots, diagrams and short videos used by the notes. |
 | `.obsidian/` | Theme, plugins and settings, so the vault looks the same on your machine. |
+| [`.github/`](.github) | The README charts and their generator (`readme/`), and the build that publishes the website (`workflows/`, `website/`). |
 
 ## Open it in Obsidian
 
@@ -161,7 +162,7 @@ Full result: [`Scores/Official SAT — March 2026`](Scores/Official%20SAT%20%E2%
 3. When Obsidian asks, **trust the author and turn on community plugins**. Without them the charts, Dataview tables and the Homepage banner won't render.
 4. Open **Homepage**.
 
-The notes can also be read here on GitHub, but they're written for Obsidian: callouts, `[[links]]`, charts and Dataview queries only work there.
+The notes can also be read here on GitHub, but they're written for Obsidian: callouts, `[[links]]`, charts and Dataview queries only work there (or on the [website](#read-it-as-a-website)).
 
 <details>
 <summary><b>Theme and plugins</b></summary>
@@ -179,6 +180,17 @@ Theme: **Minimal** (light mode, accent `#16b0fe`) with Minimal Theme Settings an
 | Kanban, Advanced Canvas, Canvas Mindmap | Installed, not central to this vault |
 
 </details>
+
+## Read it as a website
+
+**[fatsyalst.github.io/sat-prep](https://fatsyalst.github.io/sat-prep/)** is the whole vault in the browser, no Obsidian needed.
+
+It isn't a rewrite of the notes. A GitHub Action ([`publish-website.yml`](.github/workflows/publish-website.yml)) opens the vault in a headless Obsidian and exports every note with the [Webpage HTML Export](https://github.com/KosmosisDire/obsidian-webpage-export) plugin, so the pages come out of Obsidian's own renderer: the same Minimal theme, callouts, formulas, drawn figures and Dataview tables. It runs on every push to `main`, and a script ([`finish-site.py`](.github/website/finish-site.py)) stops the build instead of publishing when a note has no page, a figure was not drawn or a file is missing.
+
+What differs from the vault in Obsidian:
+
+- The charts are pictures, so they don't react to hovering.
+- The site adds a file tree, search, a graph, a table of contents and a light/dark switch around the notes.
 
 ## Notes
 
